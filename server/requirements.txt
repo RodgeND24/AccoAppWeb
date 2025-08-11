@@ -1,0 +1,14 @@
+fastapi==0.116.1
+uvicorn
+
+# libs for DB
+sqlalchemy==2.0.42
+alembic==1.16.4
+
+# validation's libs
+pydantic==2.11.7
+pydantic-settings
+
+# JWT-authenticate and password hashing
+python-jose==3.5.0
+passlib==1.7.4
