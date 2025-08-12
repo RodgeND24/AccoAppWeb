@@ -3,11 +3,17 @@ uvicorn
 
 # libs for DB
 sqlalchemy==2.0.42
+psycopg2-binary==2.9.10
 alembic==1.16.4
+aiosqlite
+greenlet
 
 # validation's libs
 pydantic==2.11.7
 pydantic-settings
+pydantic[email]
+pydantic_extra_types
+phonenumbers
 
 # JWT-authenticate and password hashing
 python-jose==3.5.0
