@@ -1,12 +1,15 @@
+# API
 fastapi==0.116.1
 uvicorn
+
+# Lib for environment variables
+python-dotenv
 
 # libs for DB
 sqlalchemy==2.0.42
 psycopg2-binary==2.9.10
+asyncpg==0.30.0
 alembic==1.16.4
-aiosqlite
-greenlet
 
 # validation's libs
 pydantic==2.11.7
@@ -17,4 +20,4 @@ phonenumbers
 
 # JWT-authenticate and password hashing
 python-jose==3.5.0
-passlib==1.7.4
+passlib[bcrypt]
