@@ -37,11 +37,11 @@ async def create_user(db: AsyncSession, user: schemas.UserCreate):
     await db.refresh(db_user)
     return db_user
 
-async def delete_user(db: AsyncSession, user_id: int):
-    result = await db.execute(select(models.Settings).filter(models.Settings.user_id == user_id))
-    user = result.scalars().first()
-    if user:
-        db.execute()
+async def delete_user_by_id(db: AsyncSession, user_id: int):
+    result = await db.execute(delete(models.Users).where(models.Users.id == user_id))
+    await db.commit()
+    return result
+    
 
 '''Settings operations'''
 # Create user's settings

@@ -53,6 +53,17 @@ async def create_user(user: schemas.UserCreate, db: AsyncSession = Depends(get_d
        raise HTTPException(status_code=400, detail="User already exist")
     return await crud.create_user(db=db, user = user)
 
+@router.delete(
+        "/id/{user_id}", 
+         tags=['Users'], 
+         summary = "Delete user by id", 
+         response_model=schemas.User
+         )
+async def delete_user(user_id: int, db: AsyncSession = Depends(get_db)):
+    db_user = await crud.get_user(db=db, user_id=user_id)
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User don't exist")
+    return await crud.delete_user_by_id(db=db, user_id=user_id)
 
 '''Settings'''
 @router.get(

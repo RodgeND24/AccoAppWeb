@@ -12,7 +12,7 @@ class Users(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     access_token = Column(String, unique=True)
 
-    settings = relationship("Settings", back_populates="user", uselist=False)
+    settings = relationship("Settings", back_populates="user", uselist=False, cascade="all, delete-orphan")
     profits = relationship("Profits", back_populates="user")
     expenses = relationship("Expenses", back_populates="user")
 
