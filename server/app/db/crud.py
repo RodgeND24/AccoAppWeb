@@ -6,18 +6,24 @@ from sqlalchemy.orm import (aliased, joinedload, selectinload, subqueryload)
 from sqlalchemy.sql import (expression, label, literal_column, table, exists, any_, all_)
 from sqlalchemy.ext.asyncio import AsyncSession
 import models.models as models, schemas.schemas as schemas
-from passlib.context import CryptContext
-# import bcrypt
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated = "auto")
+from core.utils import hash_password, verify_password
 
 '''User operations'''
+# authenticate user
+async def authenticate_user(db: AsyncSession, username: str, password: str):
+    db_user = await get_user_by_username(db=db, username=username)
+    if not db_user:
+        return None
+    if not verify_password(password, db_user.hashed_password):
+        return None
+    return db_user
+
 # get user by id
 async def get_user(db: AsyncSession, user_id: int):
     result = await db.execute(select(models.Users).filter(models.Users.id == user_id))
     return result.scalars().first()
 
-# get user by email
+# get user by username
 async def get_user_by_username(db: AsyncSession, username: str):
     result = await db.execute(select(models.Users).filter(models.Users.username == username))
     return result.scalars().first()
@@ -30,7 +36,7 @@ async def get_users(db: AsyncSession, skip: int = 0, limit: int = 100):
 # create user
 async def create_user(db: AsyncSession, user: schemas.UserCreate):
     # hashed_password = bcrypt.hashpw(user.password.encode(), bcrypt.getsalt())
-    hashed_password = pwd_context.hash(user.password)
+    hashed_password = hash_password(user.password)
     db_user = models.Users(username = user.username, email = user.email, hashed_password = hashed_password)
     db.add(db_user)
     await db.commit()
