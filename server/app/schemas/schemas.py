@@ -77,6 +77,25 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
     created_at: datetime
+    uuid: str | None
 
     class Config:
         from_attributes = True
+
+class UserLogin(BaseModel):
+    username: str = Field(min_length=3, max_length=20)
+    password: str = Field(min_length=10)
+
+'''Classes for Tokens'''
+class RefreshTokenPayload(BaseModel):
+    type: str
+    sub: str
+
+class AccessTokenPayload(RefreshTokenPayload):
+    username: str
+    email: str
+
+class TokenResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str
