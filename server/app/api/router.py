@@ -3,6 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException
 from db.database import engine, get_db
 import db.crud as crud
+from typing import Annotated, List
+from core.security import get_current_user
 
 router = APIRouter(prefix="/users")
 
@@ -11,9 +13,14 @@ router = APIRouter(prefix="/users")
         "", 
          tags=['Users'], 
          summary = "Get all users", 
-         response_model=list[schemas.User]
+         response_model=List[schemas.User]
          )
-async def get_all_users(skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db)):
+async def get_all_users(skip: int = 0, limit: int = 100, current_user: schemas.User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+
+    # authorization (if future)
+    # if current_user.get("role") != "admin":
+    #   raise HTTPException(status_code=3, detail="Not permissions")
+
     users = await crud.get_users(db=db, skip = skip, limit = limit)
     return users
 
@@ -23,7 +30,7 @@ async def get_all_users(skip: int = 0, limit: int = 100, db: AsyncSession = Depe
          summary = "Get users by username", 
          response_model=schemas.User
          )
-async def get_user(username: str, db: AsyncSession = Depends(get_db)):
+async def get_user(username: str, current_user: schemas.User = Depends(get_current_user),  db: AsyncSession = Depends(get_db)):
     db_user = await crud.get_user_by_username(db=db, username = username)
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -47,8 +54,8 @@ async def get_user(user_id: int, db: AsyncSession = Depends(get_db)):
          summary = "Create user", 
          response_model=schemas.User
          )
-async def create_user(user: schemas.UserCreate, db: AsyncSession = Depends(get_db)):
-    db_user = await crud.get_user_by_email(db=db, email = user.email)
+async def create_user(user: schemas.UserCreate = Depends(), db: AsyncSession = Depends(get_db)):
+    db_user = await crud.get_user_by_username(db=db, username = user.username)
     if db_user:
        raise HTTPException(status_code=400, detail="User already exist")
     return await crud.create_user(db=db, user = user)
