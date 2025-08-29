@@ -10,6 +10,7 @@ class Users(Base):
     email = Column(String, nullable=False, unique=True, index=True)
     hashed_password = Column(String)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    uuid = Column(String)
     access_token = Column(String, unique=True)
 
     settings = relationship("Settings", back_populates="user", uselist=False, cascade="all, delete-orphan")
