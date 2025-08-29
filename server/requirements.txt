@@ -19,5 +19,6 @@ pydantic_extra_types
 phonenumbers
 
 # JWT-authenticate and password hashing
-python-jose==3.5.0
+pyjwt
+pyjwt[crypto]
 passlib[bcrypt]
