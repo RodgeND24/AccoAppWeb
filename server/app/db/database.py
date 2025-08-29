@@ -5,13 +5,14 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-# import env. variable of DATABASE_URL
+
+# import .env variable of DATABASE_URL
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Create async engine of database
 engine = create_async_engine(
     DATABASE_URL,
-    echo = True, # Logging SQL
+    echo = False, # Logging SQL
     poolclass = NullPool #disable pool-connection to asyncpg
 )
 
