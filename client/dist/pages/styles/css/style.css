@@ -1,0 +1,105 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    --color1: #E8f8f8;
+    --color2: #5fc25a;
+    --color3: #3aa134;
+    --color_grey_bg: #4b4b4b;
+    --color_grey_t_b: #222222;
+    --color_modal: #222222;
+
+}
+
+body {
+    font-family: 'Inter', 'Calibri', sans-serif;
+    background-color: var(--color_grey_bg);
+    color: white;
+}
+
+
+header, footer {
+    background-color: var(--color_grey_t_b);
+    padding: 5px 0px;
+    margin-bottom: 2%;
+    margin-top: 0px;
+}
+
+.btn {
+    margin: 5px;
+}
+
+.btn-info {
+    background-color: var(--color2);
+    max-width: 200px;
+    margin: 30px auto;
+    display: block;
+    box-sizing: border-box;
+    border-width: 2px;
+    border-color: rgb(0,0,0,0.5);
+    
+}
+
+.btn-sign-in, .btn-sign-up {
+    max-width: 200px;
+    display: block;
+    margin: 30px auto;
+    background-color: var(--color2);
+    border-width: 2px;
+    border-color: rgb(0,0,0,0.5);
+}
+
+.btn-info:hover, 
+.btn-sign-in:hover, 
+.btn-sign-up:hover {
+    background-color: var(--color3);  
+    border-color: rgb(0,0,0,0.5);
+}
+
+.modal-login, .modal-register {
+    width: 400px;
+}
+
+.modal-info {
+    width: 600px
+}
+
+.modal-header {
+    padding: 10px 20px 0px 20px;
+}
+
+/* #loginModalLabel {
+    margin: 10px auto 10px 10px;
+
+} */
+
+
+.modal-content {
+    background-color: var(--color_modal);
+}
+
+.form-control {
+    display: block;
+    margin: 10px auto;
+    padding: auto;
+    max-width: 250px;
+    max-height: 50px;
+    border-radius: 10px;
+    box-sizing: border-box;
+    font-size: 15px;
+    
+}
+
+#sign-in, #sign-up {
+    display: block;
+    margin: 0 auto;
+    max-width: 250px;
+    max-height: 50px;
+    border-radius: 1em;
+}
+
+.sign-in-info, .sign-up-info {
+    display: block;
+    margin: 10px auto;
+    text-align: center;
+    font-size: large;
+}
