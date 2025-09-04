@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, Cookie
 from fastapi.security import OAuth2PasswordRequestForm
-from typing import Optional, Annotated
+from typing import Optional, Annotated, Dict
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.database import get_db
@@ -23,6 +23,7 @@ async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db)
 ):
+    
     db_user = await crud.authenticate_user(db=db, username=form_data.username, password=form_data.password)
     if not db_user:
         raise HTTPException(status_code=404, detail="Invalid username or password")
@@ -36,22 +37,25 @@ async def login(
     refresh_token = create_refresh_token(user_data)
 
     # set cookies
-    response.set_cookie(
-        key = auth_config.JWT_ACCESS_COOKIE_NAME,
-        value = access_token,
-        max_age = auth_config.JWT_ACCESS_TOKEN_EXPIRES_IN_MINUTES * 60,
-        secure=False,   # True in production
-        httponly=True,
-        samesite="lax"
-    )
-    response.set_cookie(
-        key = auth_config.JWT_REFRESH_COOKIE_NAME,
-        value = refresh_token,
-        max_age = auth_config.JWT_REFRESH_TOKEN_EXPIRES_IN_HOURS * 60 * 60,
-        secure=False,   # True in production
-        httponly=True,
-        samesite="lax"
-    )
+    set_cookies(response, access_token, refresh_token)
+    # response.set_cookie(
+    #     key = auth_config.JWT_ACCESS_COOKIE_NAME,
+    #     value = access_token,
+    #     max_age = auth_config.JWT_ACCESS_TOKEN_EXPIRES_IN_MINUTES * 60,
+    #     secure=False,   # True in production
+    #     httponly=False,
+    #     samesite="lax",
+    #     # domain='domain.com'
+    # )
+    # response.set_cookie(
+    #     key = auth_config.JWT_REFRESH_COOKIE_NAME,
+    #     value = refresh_token,
+    #     max_age = auth_config.JWT_REFRESH_TOKEN_EXPIRES_IN_HOURS * 60 * 60,
+    #     secure=False,   # True in production
+    #     httponly=True,
+    #     samesite="lax",
+    #     # domain='domain.com'
+    # )
 
     return schemas.TokenResponse(
         access_token=access_token,
@@ -89,20 +93,22 @@ async def refresh_token(
         refresh_token = create_refresh_token(user_data)
 
         # set cookies
-        response.set_cookie(
-            key = auth_config.JWT_ACCESS_COOKIE_NAME,
-            value = access_token,
-            max_age = auth_config.JWT_ACCESS_TOKEN_EXPIRES_IN_MINUTES * 60,
-            secure=False,
-            httponly=False    
-        )
-        response.set_cookie(
-            key = auth_config.JWT_REFRESH_COOKIE_NAME,
-            value = refresh_token,
-            max_age = auth_config.JWT_REFRESH_TOKEN_EXPIRES_IN_HOURS * 60 * 60,
-            secure=False,
-            httponly=False
-        )
+        set_cookies(response, access_token, refresh_token)
+        # response.set_cookie(
+        #     key = auth_config.JWT_ACCESS_COOKIE_NAME,
+        #     value = access_token,
+        #     max_age = auth_config.JWT_ACCESS_TOKEN_EXPIRES_IN_MINUTES * 60,
+        #     secure=False,
+        #     httponly=False    
+        # )
+        # response.set_cookie(
+        #     key = auth_config.JWT_REFRESH_COOKIE_NAME,
+        #     value = refresh_token,
+        #     max_age = auth_config.JWT_REFRESH_TOKEN_EXPIRES_IN_HOURS * 60 * 60,
+        #     secure=False,
+        #     httponly=False
+        # )
+        
 
         return schemas.TokenResponse(
             access_token=access_token,
@@ -112,7 +118,27 @@ async def refresh_token(
     except JWTError as e:
         raise HTTPException(status_code=401, detail=str(e))
 
-    
+
+def set_cookies(response: Response, access_token: str, refresh_token: str):
+    # set cookies
+    response.set_cookie(
+        key = auth_config.JWT_ACCESS_COOKIE_NAME,
+        value = access_token,
+        max_age = auth_config.JWT_ACCESS_TOKEN_EXPIRES_IN_MINUTES * 60,
+        secure=False,   # True in production
+        httponly=False,
+        samesite="lax",
+        # domain='domain.com'
+    )
+    response.set_cookie(
+        key = auth_config.JWT_REFRESH_COOKIE_NAME,
+        value = refresh_token,
+        max_age = auth_config.JWT_REFRESH_TOKEN_EXPIRES_IN_HOURS * 60 * 60,
+        secure=False,   # True in production
+        httponly=False,
+        samesite="lax",
+        # domain='domain.com'
+    )  
     
 
 
