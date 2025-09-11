@@ -1,0 +1,16 @@
+# API
+fastapi==0.116.1
+uvicorn
+httpx
+Jinja2
+python-multipart
+
+# Lib for environment variables
+python-dotenv
+
+# validation libs
+pydantic==2.11.7
+pydantic-settings
+pydantic[email]
+pydantic_extra_types
+phonenumbers

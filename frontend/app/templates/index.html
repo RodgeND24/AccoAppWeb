@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block main %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="h1 text-center">AccoApp - Accounting your money</div>
+            <button type="button" class="btn btn-info btn-lg" data-bs-toggle="modal" data-bs-target="#infoModal">Information</button>
+        </div>
+    </div>
+        <div class="row">
+            <div class="col-6">
+                <label for="sign_in" class="sign-in-info">Are you already have an account?</label>
+                    <button type="button" class="btn btn-sign-in btn-lg" data-bs-toggle="modal" data-bs-target="#loginModal" id="sign_in">Sign in</button>
+            </div>
+            <div class="col-6">
+                <label for="sign_up" class="sign-up-info">First time here? Register</label>
+                <button type="button" class="btn btn-sign-up btn-lg" data-bs-toggle="modal" data-bs-target="#registerModal" id="sign_up">Sign up</button>
+            </div>
+        </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="../static/scripts/main.js"></script>
+{% endblock %}
+
+{% block modal %}
+<div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-5 shadow modal-register">
+                    <div class="modal-header border-bottom-0">
+                        <h1 class="modal-title fs-1 text-white" id="registerModalLabel">Registration</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-12">
+                                    <form class="sign-form" id="register-form">
+                                        <div>
+                                            <input id="register_username" type="text" class="form-control" placeholder="username" name="username">
+                                            <label for="register_username">Username</label>
+                                        </div>
+                                        <div>
+                                            <input id="register_email" type="email" class="form-control" placeholder="email" name="email">
+                                            <label for="register_email">Email</label>
+                                        </div>
+                                        <div>
+                                            <input id="register_password" type="password" class="form-control" placeholder="password" name="password">
+                                            <label for="register_password">Password</label>
+                                        </div>
+                                        <div>
+                                            <input id="repeat_register_password" type="password" class="form-control" placeholder="repeat password" name="repeat_password">
+                                            <label for="repeat_register_password">Repeat password</label>
+                                        </div>
+                                        
+                                        <button id="sign-up" type="submit" class="btn btn-primary">Sign up</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        ...
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-login">
+            <div class="modal-content rounded-5 shadow">
+                <div class="modal-header border-bottom-0">
+                    <h1 class="modal-title fs-1 text-white" id="loginModalLabel">Authentication</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12">
+                                <form class="sign-form" id='login-form' method="post">
+                                    <div>
+                                        <input id="login_username" type="text" class="form-control" placeholder="username" name="username" required>
+                                        <label for="login_username">Username</label>
+                                    </div>
+                                    <div>
+                                        <input id="login_password" type="password" class="form-control" placeholder="password" name="password" required>
+                                        <label for="login_password">Password</label>
+                                    </div>
+                                        
+                                    <button id="sign-in" type='submit' class="btn btn-primary">Sign in</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    ...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-info">
+            <div class="modal-content rounded-5 shadow">
+                <div class="modal-header">
+                    <h1 class="modal-title text-white" id="infoModalLabel">Information</h1>
+                    <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ...
+                </div>
+                <div class="modal-footer">
+                    ...
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
