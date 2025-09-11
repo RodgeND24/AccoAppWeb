@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: ./nginx/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    volumes:
+      - ./client/dist/pages:/usr/share/nginx/html/:ro
+  
+
+  backend:
+    build: ./server
+    expose:
+      - "8000"
+    environment:
+      - ENVIRONMENT=environment
+  
