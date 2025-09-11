@@ -3,6 +3,7 @@
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import Optional, List
 from datetime import datetime, date
+from models.models import Language
 
 '''Classes for Settings'''
 class SettingsBase(BaseModel):
@@ -24,6 +25,7 @@ class Settings(SettingsBase):
 
     class Config:
         from_attributes = True
+
 
 '''Classes for Profits'''
 class ProfitsBase(BaseModel):
@@ -99,3 +101,11 @@ class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str
     token_type: str
+
+
+'''Class for relationships'''
+class SettingsRel(Settings):
+    user: "User"
+
+class UsersRel(User):
+    settings: "Settings"

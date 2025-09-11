@@ -51,31 +51,69 @@ async def delete_user_by_id(db: AsyncSession, user_id: int):
 
 '''Settings operations'''
 # Create user's settings
-async def create_settings(db: AsyncSession, settings: schemas.SettingsCreate, user_id: int):
-    db_settings = models.Settings(**settings.dict(), user_id = user_id)
-    db.add(db_settings)
-    await db.commit()
-    await db.refresh(db_settings)
-    return db_settings
+async def create_settings(username: str, settings: schemas.SettingsCreate, db: AsyncSession):
+    try:
+        db_user = await get_user_by_username(db=db, username=username)
+        settings = await get_settings(db=db, username=username)
+    
+        db_settings = models.Settings(user_id = db_user.id, **settings.model_dump())
+        db.add(db_settings)
+        await db.commit()
+        await db.refresh(db_settings)
+        return db_settings
+    except:
+        return None
+    
 
 # Update user's settings
-async def update_settings(db: AsyncSession, settings: schemas.Settings, user_id: int):
-    result = await db.execute(select(models.Settings).filter(models.Settings.user_id == user_id))
-    user = result.scalars().first()
-    if user:
-        user.firstname = settings.firstname
-        user.lastname = settings.lastname
-        user.description = settings.description
-        user.is_online = settings.is_online
-        user.language = user.language
-        user.country = user.country
-        user.theme = settings.theme
+async def update_settings(username: str, db: AsyncSession, settings: schemas.SettingsBase):
+    try:
+        db_user = await get_user_by_username(db=db, username=username)
+    
+        query = update(models.Settings).values(**settings.model_dump()).where(models.Settings.user_id == db_user.id)
+        await db.execute(query)
+        
+        await db.flush()
+        await db.commit()
+        return settings
+    except:
+        return None
+    
+    # result = await db.execute(select(models.Settings).filter(models.Settings.user_id == db_user_id))
+    # user_settings = result.scalars().first()
+    # if user_settings:
+    #     user.firstname = settings.firstname
+    #     user.lastname = settings.lastname
+    #     user.description = settings.description
+    #     user.is_online = settings.is_online
+    #     user.language = user.language
+    #     user.country = user.country
+    #     user.theme = settings.theme
 
-        db.flush()
-        db.commit()
-    return user
+    #     db.flush()
+    #     db.commit()
+    # return user
     
 # Get user's settings
-async def get_settings(db: AsyncSession, user_id: int):
-    result = await db.execute(select(models.Settings).filter(models.Settings.user_id == user_id))
-    return result.scalars().first()
+async def get_settings(db: AsyncSession, username: str):
+    try:
+        db_user = await get_user_by_username(db=db, username=username)
+        result = await db.execute(select(models.Settings).filter(models.Settings.user_id == db_user.id))
+        return result.scalars().first()
+    except:
+        return None
+
+
+
+
+
+
+
+# Get all information about everyone in JSON with settings
+async def get_all_information(db: AsyncSession):
+    query = select(models.Users).options(selectinload(models.Users.settings))
+    users = await db.execute(query)
+    result = users.scalars().all()
+
+    result_json = [schemas.UsersRel.model_validate(row, from_attributes=True) for row in result]
+    return result_json

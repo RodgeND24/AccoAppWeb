@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, Cookie
+from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from typing import Optional, Annotated, Dict
 
@@ -10,9 +11,11 @@ import schemas.schemas as schemas, models.models as models, db.crud as crud
 from core.security import (auth_config, create_access_token, 
                            create_refresh_token, get_current_user,
                            verify_token, JWTError)
+from core.utils import auth_config, set_cookies
 
 
-router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
 @router.post(
     "/login",
@@ -20,15 +23,16 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 )
 async def login(
     response: Response,
-    form_data: OAuth2PasswordRequestForm = Depends(),
+    user_data: schemas.UserLogin = Depends(),
     db: AsyncSession = Depends(get_db)
 ):
-    
-    db_user = await crud.authenticate_user(db=db, username=form_data.username, password=form_data.password)
+
+    db_user = await crud.authenticate_user(db=db, username=user_data.username, password=user_data.password)
     if not db_user:
-        raise HTTPException(status_code=404, detail="Invalid username or password")
+        raise HTTPException(status_code=401, detail="Invalid username or password")
     
     user_data = {
+        "sub": db_user.username,
         "username": db_user.username,
         "email": db_user.email
     }
@@ -38,24 +42,6 @@ async def login(
 
     # set cookies
     set_cookies(response, access_token, refresh_token)
-    # response.set_cookie(
-    #     key = auth_config.JWT_ACCESS_COOKIE_NAME,
-    #     value = access_token,
-    #     max_age = auth_config.JWT_ACCESS_TOKEN_EXPIRES_IN_MINUTES * 60,
-    #     secure=False,   # True in production
-    #     httponly=False,
-    #     samesite="lax",
-    #     # domain='domain.com'
-    # )
-    # response.set_cookie(
-    #     key = auth_config.JWT_REFRESH_COOKIE_NAME,
-    #     value = refresh_token,
-    #     max_age = auth_config.JWT_REFRESH_TOKEN_EXPIRES_IN_HOURS * 60 * 60,
-    #     secure=False,   # True in production
-    #     httponly=True,
-    #     samesite="lax",
-    #     # domain='domain.com'
-    # )
 
     return schemas.TokenResponse(
         access_token=access_token,
@@ -94,21 +80,7 @@ async def refresh_token(
 
         # set cookies
         set_cookies(response, access_token, refresh_token)
-        # response.set_cookie(
-        #     key = auth_config.JWT_ACCESS_COOKIE_NAME,
-        #     value = access_token,
-        #     max_age = auth_config.JWT_ACCESS_TOKEN_EXPIRES_IN_MINUTES * 60,
-        #     secure=False,
-        #     httponly=False    
-        # )
-        # response.set_cookie(
-        #     key = auth_config.JWT_REFRESH_COOKIE_NAME,
-        #     value = refresh_token,
-        #     max_age = auth_config.JWT_REFRESH_TOKEN_EXPIRES_IN_HOURS * 60 * 60,
-        #     secure=False,
-        #     httponly=False
-        # )
-        
+        # response = RedirectResponse("/", status_code=302)
 
         return schemas.TokenResponse(
             access_token=access_token,
@@ -119,31 +91,13 @@ async def refresh_token(
         raise HTTPException(status_code=401, detail=str(e))
 
 
-def set_cookies(response: Response, access_token: str, refresh_token: str):
-    # set cookies
-    response.set_cookie(
-        key = auth_config.JWT_ACCESS_COOKIE_NAME,
-        value = access_token,
-        max_age = auth_config.JWT_ACCESS_TOKEN_EXPIRES_IN_MINUTES * 60,
-        secure=False,   # True in production
-        httponly=False,
-        samesite="lax",
-        # domain='domain.com'
-    )
-    response.set_cookie(
-        key = auth_config.JWT_REFRESH_COOKIE_NAME,
-        value = refresh_token,
-        max_age = auth_config.JWT_REFRESH_TOKEN_EXPIRES_IN_HOURS * 60 * 60,
-        secure=False,   # True in production
-        httponly=False,
-        samesite="lax",
-        # domain='domain.com'
-    )  
+  
     
 
 
 @router.post("/logout")
 async def logout(response: Response):
+    # response = RedirectResponse("/", status_code=302)
     response.delete_cookie(auth_config.JWT_ACCESS_COOKIE_NAME)
     response.delete_cookie(auth_config.JWT_REFRESH_COOKIE_NAME) 
     return {"message": "User successfully logout"}

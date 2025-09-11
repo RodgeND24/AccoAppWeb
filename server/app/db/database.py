@@ -13,7 +13,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 engine = create_async_engine(
     DATABASE_URL,
     echo = False, # Logging SQL
-    poolclass = NullPool #disable pool-connection to asyncpg
+    poolclass = NullPool, #disable pool-connection to asyncpg
 )
 
 # Create session factory

@@ -1,45 +1,13 @@
 from fastapi import HTTPException, Security, Depends, Cookie, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.security.utils import get_authorization_scheme_param
-from pydantic import BaseModel
-from dotenv import load_dotenv
-import os
-from pathlib import Path
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 import jwt, uuid
-from core.utils import verify_password
+from core.utils import verify_password, auth_config
 from typing import Annotated, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 import db.crud as crud
 from db.database import get_db
-
-
-# import environment variables
-load_dotenv()
-BASE_DIR = Path(__file__).parent
-
-with open(BASE_DIR/os.getenv("JWT_PRIVATE_KEY_PATH"), 'r') as file:
-    JWT_PRIVATE_KEY = file.read()
-with open(BASE_DIR/os.getenv("JWT_PUBLIC_KEY_PATH"), 'r') as file:
-    JWT_PUBLIC_KEY = file.read()
-
-class JWTConfig(BaseModel):
-
-    JWT_ALGORITHM_: str = os.getenv("JWT_ALGORITHM")
-    
-    JWT_ACCESS_TOKEN_EXPIRES: str = timedelta(minutes=1)
-    JWT_ACCESS_TOKEN_EXPIRES_IN_MINUTES: str = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRES_IN_MINUTES"))
-    
-    JWT_REFRESH_TOKEN_EXPIRES: str = timedelta(hours=1)
-    JWT_REFRESH_TOKEN_EXPIRES_IN_HOURS: str = int(os.getenv("JWT_REFRESH_TOKEN_EXPIRES_IN_HOURS"))
-    
-    JWT_ACCESS_COOKIE_NAME: str = os.getenv("JWT_ACCESS_COOKIE_NAME")
-    JWT_REFRESH_COOKIE_NAME: str = os.getenv("JWT_REFRESH_COOKIE_NAME")
-    
-    JWT_TOKEN_LOCATION: list[str] = ["headers", "cookies"]
-    
-    JWT_PRIVATE_KEY: str = None
-    JWT_PUBLIC_KEY: str = None
 
 # custom HTTPBearer
 class AuthHTTPBearer(HTTPBearer):
@@ -67,7 +35,6 @@ class AuthHTTPBearer(HTTPBearer):
         return None
 
 
-auth_config = JWTConfig(JWT_PRIVATE_KEY=JWT_PRIVATE_KEY, JWT_PUBLIC_KEY=JWT_PUBLIC_KEY)
 security = AuthHTTPBearer()
 
 
