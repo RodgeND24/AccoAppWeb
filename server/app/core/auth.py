@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, Cookie
+from fastapi import APIRouter, Depends, HTTPException, Response, Cookie, Request
 from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from typing import Optional, Annotated, Dict
@@ -19,11 +19,12 @@ router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
 @router.post(
     "/login",
+    summary='User sing in',
     response_model=schemas.TokenResponse
 )
 async def login(
     response: Response,
-    user_data: schemas.UserLogin = Depends(),
+    user_data: schemas.UserLogin,
     db: AsyncSession = Depends(get_db)
 ):
 
@@ -49,17 +50,29 @@ async def login(
         token_type="bearer")
 
 @router.post(
+        "/register", 
+         summary='User sing up', 
+         response_model=schemas.User
+         )
+async def create_user(user: schemas.UserCreate, db: AsyncSession = Depends(get_db)):
+    db_user = await crud.get_user_by_username(db=db, username = user.username)
+    if db_user:
+       raise HTTPException(status_code=400, detail="User already exist")
+    return await crud.create_user(db=db, user = user)
+
+@router.post(
     "/refresh",
     response_model=schemas.TokenResponse
 )
 async def refresh_token(
     response: Response,
-    refresh_request: str = Cookie(..., alias=auth_config.JWT_REFRESH_COOKIE_NAME),
+    # refresh_request: str = Cookie(..., alias=auth_config.JWT_REFRESH_COOKIE_NAME),
+    refresh_token: str,
     db: AsyncSession = Depends(get_db)
 ):
     
     try:
-        token_data = verify_token(refresh_request, is_refresh=True)
+        token_data = verify_token(refresh_token, is_refresh=True)
         username = token_data.get("sub")
 
         if not username:
@@ -90,8 +103,16 @@ async def refresh_token(
     except JWTError as e:
         raise HTTPException(status_code=401, detail=str(e))
 
-
-  
+@router.post(
+            "/verify-token",
+            # response_model=bool
+)  
+async def verify_token_from_client(token_data: schemas.TokenRequest):
+    try:
+        verify_token(token_data.token, token_data.is_refresh)
+        return token_data.token
+    except:
+        raise HTTPException(status_code=401, detail='Invalid token')
     
 
 

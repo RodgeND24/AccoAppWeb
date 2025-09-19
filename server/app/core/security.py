@@ -75,27 +75,29 @@ def create_refresh_token(user_data: dict[str, str]) -> str:
 class JWTError(Exception):
     pass
 
-def verify_token(token: str, is_refresh: bool = False):
+def verify_token(token: str, is_refresh: str):
     try:
         token_data = jwt.decode(jwt = token, key = auth_config.JWT_PUBLIC_KEY, algorithms = [auth_config.JWT_ALGORITHM_])
         type = token_data.get("type")
 
-        if is_refresh and type != "refresh":
-            raise JWTError("Invalid token type")
-        if not is_refresh and type != "access":
-            raise JWTError("Invalid token type")
+        if int(is_refresh) and type != "refresh":
+            raise HTTPException(status_code=401, detail="Invalid token type")
+        if not int(is_refresh) and type != "access":
+            raise HTTPException(status_code=401, detail="Invalid token type")
         
         return token_data
 
     except jwt.ExpiredSignatureError:
-        raise JWTError("Token expired")
+        raise HTTPException(status_code=401, detail="Token expired")
+    
     except jwt.InvalidTokenError:
-        raise JWTError("Invalid token")
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
 
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Security(security), db: AsyncSession = Depends(get_db)):
     try:
         token = credentials.credentials
-        token_data = verify_token(token)
+        token_data = verify_token(token, is_refresh='0')
         username = token_data.get("username")
         email = token_data.get("email")
 

@@ -57,7 +57,7 @@ async def get_user(username: str, current_user: models.Users = Depends(get_curre
          summary = "Get users by id", 
          response_model=schemas.User
          )
-async def get_user(user_id: int, db: AsyncSession = Depends(get_db)):
+async def get_user(user_id: int, current_user: models.Users = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     db_user = await crud.get_user(db=db, user_id = user_id)
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -69,7 +69,7 @@ async def get_user(user_id: int, db: AsyncSession = Depends(get_db)):
          summary = "Create user", 
          response_model=schemas.User
          )
-async def create_user(user: schemas.UserCreate = Depends(), db: AsyncSession = Depends(get_db)):
+async def create_user(current_user: models.Users = Depends(get_current_user), user: schemas.UserCreate = Depends(), db: AsyncSession = Depends(get_db)):
     db_user = await crud.get_user_by_username(db=db, username = user.username)
     if db_user:
        raise HTTPException(status_code=400, detail="User already exist")
@@ -81,7 +81,7 @@ async def create_user(user: schemas.UserCreate = Depends(), db: AsyncSession = D
          summary = "Delete user by id", 
          response_model=schemas.User
          )
-async def delete_user_by_id(user_id: int, db: AsyncSession = Depends(get_db)):
+async def delete_user_by_id(user_id: int, current_user: models.Users = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     db_user = await crud.get_user(db=db, user_id=user_id)
     if not db_user:
         raise HTTPException(status_code=404, detail="User don't exist")

@@ -97,6 +97,10 @@ class AccessTokenPayload(RefreshTokenPayload):
     username: str
     email: str
 
+class TokenRequest(BaseModel):
+    token: str
+    is_refresh: str
+
 class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str
